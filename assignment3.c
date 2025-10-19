@@ -27,6 +27,11 @@ pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 int current_time = 0;
 int completed_processes = 0;
 
+// Function prototypes
+void* cpu_worker(void* arg);
+Process* find_shortest_job();
+void execute_process(Process* process, int cpu_id);
+
 int main() {
     printf("CPSC 321 Assignment 3 - Multi-CPU SJF Scheduling\n");
     printf("Initializing %d processes...\n", N);
