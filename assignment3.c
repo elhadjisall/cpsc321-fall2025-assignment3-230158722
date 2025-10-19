@@ -48,5 +48,6 @@ int main() {
     }
     
     printf("Process initialization complete.\n");
+    printf("Ready to implement CPU worker threads...\n");
     return 0;
 }
