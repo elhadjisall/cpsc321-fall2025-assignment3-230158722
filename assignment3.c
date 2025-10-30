@@ -131,22 +131,22 @@ void* cpu_worker(void* arg) {
         int ref_now = cpu_time[0] < cpu_time[1] ? cpu_time[0] : cpu_time[1];
         if (ref_now < cpu_time[cpu_id]) ref_now = cpu_time[cpu_id];
 
-        Process* p = find_shortest_job(ref_now);
+    Process* p = find_shortest_job(ref_now);
         if (p == NULL) {
             // Nothing eligible yet; release lock and wait a bit
             pthread_mutex_unlock(&queue_mutex);
-            usleep(1000);
+        usleep(1000);
             continue;
         }
 
         // Mark as running to avoid double-pick
-        p->completed = 2; // 2 = running
+    p->completed = PROC_RUNNING;
         pthread_mutex_unlock(&queue_mutex);
 
         execute_process(p, cpu_id);
 
         pthread_mutex_lock(&queue_mutex);
-        p->completed = 1; // 1 = done
+        p->completed = PROC_DONE;
         completed_processes++;
         // Update a coarse global time reference (optional)
         if (cpu_time[cpu_id] > current_time) current_time = cpu_time[cpu_id];
