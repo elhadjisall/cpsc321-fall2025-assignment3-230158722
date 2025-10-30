@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <string.h>
+#include <limits.h>
 
 // Static arrays as specified in the assignment
 static const int N = 5;
@@ -11,6 +12,12 @@ static const int arrival[] = { 0, 1, 2, 3, 4 }; // the arrival time of each proc
 static const int burst[] = {10, 5, 8, 6, 3 }; // the burst time (execution time in time units) of each process.
 
 // Process structure to hold process information
+typedef enum {
+    PROC_READY = 0,
+    PROC_RUNNING = 2,
+    PROC_DONE = 1
+} ProcessState;
+
 typedef struct {
     char name[10];
     int arrival_time;
@@ -18,12 +25,13 @@ typedef struct {
     int waiting_time;
     int turnaround_time;
     int cpu_id;
-    int completed;
+    int completed; // use ProcessState values
 } Process;
 
 // Global variables
 Process processes[N];
 pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t print_mutex = PTHREAD_MUTEX_INITIALIZER;
 int current_time = 0; // global reference time (simple simulation)
 int completed_processes = 0;
 int cpu_time[2] = {0, 0}; // per-CPU simulated clocks
@@ -45,7 +53,7 @@ int main() {
         processes[i].waiting_time = 0;
         processes[i].turnaround_time = 0;
         processes[i].cpu_id = -1;
-        processes[i].completed = 0;
+        processes[i].completed = PROC_READY;
     }
     
     printf("Process initialization complete.\n");
@@ -63,6 +71,7 @@ int main() {
     // Print per-process results and averages
     double total_wait = 0.0, total_turn = 0.0;
     for (int i = 0; i < N; i++) {
+        pthread_mutex_lock(&print_mutex);
         printf("Process: %s Arrival: %d Burst: %d CPU: %d Waiting Time: %d Turnaround Time: %d\n",
                processes[i].name,
                processes[i].arrival_time,
@@ -70,6 +79,7 @@ int main() {
                processes[i].cpu_id,
                processes[i].waiting_time,
                processes[i].turnaround_time);
+        pthread_mutex_unlock(&print_mutex);
         total_wait += processes[i].waiting_time;
         total_turn += processes[i].turnaround_time;
     }
