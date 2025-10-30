@@ -92,7 +92,7 @@ int main() {
 Process* find_shortest_job(int now) {
     Process* best = NULL;
     for (int i = 0; i < N; i++) {
-        if (processes[i].completed == 0 && processes[i].arrival_time <= now) {
+        if (processes[i].completed == PROC_READY && processes[i].arrival_time <= now) {
             if (best == NULL || processes[i].burst_time < best->burst_time) {
                 best = &processes[i];
             }
