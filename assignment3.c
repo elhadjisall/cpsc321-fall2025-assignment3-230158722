@@ -113,7 +113,9 @@ Process* find_shortest_job(int now) {
 // Simulate execution: compute waiting/turnaround using per-CPU time and sleep to emulate work
 void execute_process(Process* process, int cpu_id) {
     int start_time = cpu_time[cpu_id] < process->arrival_time ? process->arrival_time : cpu_time[cpu_id];
-    process->waiting_time = start_time - process->arrival_time;
+    int wait = start_time - process->arrival_time;
+    if (wait < 0) wait = 0;
+    process->waiting_time = wait;
     process->cpu_id = cpu_id;
 
     // Simulate execution time; scale to milliseconds for quick runs
