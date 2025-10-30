@@ -93,8 +93,17 @@ Process* find_shortest_job(int now) {
     Process* best = NULL;
     for (int i = 0; i < N; i++) {
         if (processes[i].completed == PROC_READY && processes[i].arrival_time <= now) {
-            if (best == NULL || processes[i].burst_time < best->burst_time) {
+            if (best == NULL) {
                 best = &processes[i];
+            } else if (processes[i].burst_time < best->burst_time) {
+                best = &processes[i];
+            } else if (processes[i].burst_time == best->burst_time) {
+                // Tie-breaker: earlier arrival, then lexicographic name
+                if (processes[i].arrival_time < best->arrival_time) {
+                    best = &processes[i];
+                } else if (processes[i].arrival_time == best->arrival_time && strcmp(processes[i].name, best->name) < 0) {
+                    best = &processes[i];
+                }
             }
         }
     }
