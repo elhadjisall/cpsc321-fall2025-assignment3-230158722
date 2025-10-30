@@ -131,11 +131,25 @@ void* cpu_worker(void* arg) {
         int ref_now = cpu_time[0] < cpu_time[1] ? cpu_time[0] : cpu_time[1];
         if (ref_now < cpu_time[cpu_id]) ref_now = cpu_time[cpu_id];
 
-    Process* p = find_shortest_job(ref_now);
+        Process* p = find_shortest_job(ref_now);
         if (p == NULL) {
-            // Nothing eligible yet; release lock and wait a bit
-            pthread_mutex_unlock(&queue_mutex);
-        usleep(1000);
+            // No eligible jobs; find the next soonest arrival among remaining
+            int next_arrival = INT_MAX;
+            for (int i = 0; i < N; i++) {
+                if (processes[i].completed != PROC_DONE && processes[i].arrival_time > ref_now) {
+                    if (processes[i].arrival_time < next_arrival) next_arrival = processes[i].arrival_time;
+                }
+            }
+            // Advance this CPU's clock up to next arrival to avoid busy spin
+            if (next_arrival != INT_MAX && cpu_time[cpu_id] < next_arrival) {
+                int delta = next_arrival - cpu_time[cpu_id];
+                cpu_time[cpu_id] = next_arrival;
+                pthread_mutex_unlock(&queue_mutex);
+                usleep(delta * 1000);
+            } else {
+                pthread_mutex_unlock(&queue_mutex);
+                usleep(1000);
+            }
             continue;
         }
 
