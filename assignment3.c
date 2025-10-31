@@ -29,7 +29,7 @@ typedef struct {
 } Process;
 
 // Global variables
-Process processes[N];
+Process* processes;
 pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t print_mutex = PTHREAD_MUTEX_INITIALIZER;
 int current_time = 0; // global reference time (simple simulation)
@@ -45,7 +45,12 @@ int main() {
     printf("CPSC 321 Assignment 3 - Multi-CPU SJF Scheduling\n");
     printf("Initializing %d processes...\n", N);
     
-    // Initialize process structures
+    // Allocate and initialize process structures
+    processes = (Process*)malloc(sizeof(Process) * N);
+    if (!processes) {
+        fprintf(stderr, "Failed to allocate processes array\n");
+        return 1;
+    }
     for (int i = 0; i < N; i++) {
         strcpy(processes[i].name, names[i]);
         processes[i].arrival_time = arrival[i];
@@ -85,6 +90,8 @@ int main() {
     }
     printf("Average waiting time = %.2f\n", total_wait / N);
     printf("Average turnaround time = %.2f\n", total_turn / N);
+
+    free(processes);
     return 0;
 }
 
