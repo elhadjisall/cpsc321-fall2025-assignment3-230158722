@@ -1,3 +1,9 @@
+/*
+ * Name: El Sall
+ * Student Number: 230158722
+ * GitHub Repository:@https://github.com/elhadjisall/cpsc321-fall2025-assignment3-230158722 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
