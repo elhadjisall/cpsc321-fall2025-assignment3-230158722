@@ -172,7 +172,7 @@ void* cpu_worker(void* arg) {
         }
 
         // Mark as running to avoid double-pick
-    p->completed = PROC_RUNNING;
+        p->completed = PROC_RUNNING;
         pthread_mutex_unlock(&queue_mutex);
 
         execute_process(p, cpu_id);
